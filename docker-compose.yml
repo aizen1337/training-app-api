@@ -1,0 +1,31 @@
+# docker-compose.yml
+version: '3.9'
+
+services:
+  api:
+    image: "oven/bun"
+    # override default entrypoint allows us to do `bun install` before serving
+    entrypoint: []
+    # execute bun install before we start the dev server in watch mode
+    command: "/bin/sh -c 'bun install && bun run --watch src/index.ts'"
+    # expose the right ports
+    ports: ["3000:3000"]
+    # setup a host mounted volume to sync changes to the container
+    volumes: ["./:/home/bun/app"]
+  
+  database:
+    image: "postgres"
+    restart: always
+    ports:
+      - 5432:5432
+    shm_size: 128mb
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: main
+      PGDATA: /data/postgres
+    volumes:
+      - postgres:/data/postgres
+
+volumes:
+  postgres:
